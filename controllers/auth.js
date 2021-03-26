@@ -421,24 +421,23 @@ exports.getAllPosts = async (req, res, next) => {
 exports.getAllPosts2 = async (req, res, next) => {
   const posts = await Posts.find();
   if (posts) {
-    res.send(posts);
+    res.send(posts).status(200);
   } else {
-    return res.status(400);
+        return res.status(400).send("error");
   }
 };
 
 exports.getAllPostsByCategory = async (req, res, next) => {
   const { categoryId } = req.body;
-  Posts.find()
-    .then((post) => {
-      const postByCategory = post.filter(
-        (newpost) => newpost.category._id !== categoryId
-      );
-      console.log(postByCategory);
-
-      res.status(200).send(postByCategory);
-    })
-    .catch((err) => res.status(400).send("Le post n'existe pas"));
+  Posts.find({
+    "category._id": categoryId,}
+ , function (err,data) {
+    if (err) {
+        err.status = 406;
+        return next(err);
+    }
+    return res.status(200).send(data)
+})
 };
 
 exports.getAllCategories = async (req, res, next) => {
